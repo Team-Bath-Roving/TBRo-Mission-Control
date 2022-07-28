@@ -1,12 +1,16 @@
 '''Config'''
 # URLs of video feeds 
-urls = [
+URLS = [
 	0,
 	None # "http://192.168.77.163:4747/video"
 ]
 
 # Directory of image files
-img_dir = "img/"
+IMG_DIR = "TBRo-Mission-Control/img/"
+
+# Network information
+ROVER_IP = "192.168.0.25"
+ROVER_PORT = 5000
 
 # ========================================================
 
@@ -14,11 +18,16 @@ img_dir = "img/"
 import pygame
 import datetime
 import marstime
+from socket import socket, AF_INET, SOCK_DGRAM
 
 from classes.FeedManager import FeedManager
 from classes.CameraFeed import CameraFeed
 from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
+
+# Set up socket connection to rover
+sendSocket = socket(AF_INET, SOCK_DGRAM)
+sendSocket.connect((ROVER_IP, ROVER_PORT))
 
 # Initialise pygame
 pygame.init()
@@ -40,19 +49,19 @@ done = False
 # Create instance of FeedManager and set up CameraFeeds 
 fm = FeedManager()
 
-fm.add_feed(CameraFeed("Phone (via IP)", urls[0], (80, 90), (550, 400)))
-fm.add_feed(CameraFeed("Webcam", urls[1], (628, 90), (550, 400)))
+fm.add_feed(CameraFeed("Phone (via IP)", URLS[0], (80, 90), (550, 400)))
+fm.add_feed(CameraFeed("Webcam", URLS[1], (628, 90), (550, 400)))
 
 # List of connected controllers
 controllers = []
 cont_index = 0
 
 # Setting up images
-spacesoc_img = pygame.transform.smoothscale(pygame.image.load(img_dir + "spacesoc.png"), (64, 64))
-olympus_img = pygame.transform.smoothscale(pygame.image.load(img_dir + "olympus.png"), (57, 64))
+spacesoc_img = pygame.transform.smoothscale(pygame.image.load(IMG_DIR + "spacesoc.png"), (64, 64))
+olympus_img = pygame.transform.smoothscale(pygame.image.load(IMG_DIR + "olympus.png"), (57, 64))
 
 # Create ActionHandler object
-ah = ActionHandler(fm)
+ah = ActionHandler(sendSocket, fm)
 
 # Main loop
 while not done:
