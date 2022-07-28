@@ -1,4 +1,6 @@
 import pygame
+import json
+import random
 
 # Keybinds
 SWAP_FEEDS = [pygame.K_o, pygame.CONTROLLER_BUTTON_A]
@@ -9,7 +11,8 @@ class ActionHandler:
 	'''
 	Handles all actions performed after button presses, etc
 	'''
-	def __init__(self, fm, cont=None):
+	def __init__(self, sendSocket, fm, cont=None):
+		self.soc = sendSocket
 		self.FeedManager = fm
 		self.Controller = cont
 
@@ -20,7 +23,15 @@ class ActionHandler:
 	def send_controller_state(self):
 		'''Send the current state of the controller to the rover'''
 		if (not self.Controller is None):
-			pass
+			# Make list of full controller state
+			state = [
+				str(random.randint(0, 9999)).zfill(4), # TEMP: means you can see if msgs are being sent over network
+				self.Controller.buttons,
+				self.Controller.dpad,
+				self.Controller.axes
+			]
+			# Convert list to JSON string then encode to bytes and send
+			self.soc.send(json.dumps(state).encode())
 
 	def button_press(self, b):
 		'''Calls a function after button on keyboard or controller is pressed'''
