@@ -1,7 +1,7 @@
 import pygame
 
 # Keybinds
-SWAP_FEED = [pygame.K_o, pygame.CONTROLLER_BUTTON_A]
+SWAP_FEEDS = [pygame.K_o, pygame.CONTROLLER_BUTTON_A]
 CYCLE_CAM_MODE = [pygame.K_p, pygame.CONTROLLER_BUTTON_B]
 
 # ActionHandler class
@@ -24,7 +24,7 @@ class ActionHandler:
 
 	def button_press(self, b):
 		'''Calls a function after button on keyboard or controller is pressed'''
-		if b in SWAP_FEED:
+		if b in SWAP_FEEDS:
 			self.swap_feeds()
 		elif b in CYCLE_CAM_MODE:
 			self.cycle_cam_mode()
