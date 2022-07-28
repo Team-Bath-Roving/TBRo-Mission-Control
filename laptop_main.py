@@ -44,7 +44,7 @@ WHITE = (255, 255, 255)
 done = False
 
 # Clock controls how often the screen updates
-# clock = pygame.time.Clock()
+clock = pygame.time.Clock()
 
 # Create instance of FeedManager and set up CameraFeeds 
 fm = FeedManager()
@@ -194,7 +194,7 @@ while not done:
 	pygame.display.flip()
 
 	# Limit to 60 frames per second
-	# clock.tick(60)
+	clock.tick(60)
 
 fm.release_feeds()
 pygame.quit()
