@@ -85,6 +85,10 @@ while not done:
 		elif event.type == pygame.QUIT:
 			done = True
 
+		# [Temp] sStop "rover" python script
+		elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+			send_socket.sendall("QUIT_ROVER".encode())
+
 		# Handling keyboard/ controller button presses
 		else:
 			# Keyboard
