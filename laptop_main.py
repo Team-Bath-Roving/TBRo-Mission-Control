@@ -1,8 +1,8 @@
 '''Config'''
 # URLs of video feeds 
 URLS = [
-	0,
-	None # "http://192.168.77.163:4747/video"
+	["Webcam", 0],
+	["Phone (via IP)", None] # "http://192.168.77.163:4747/video"
 ]
 
 # Directory of image files
@@ -26,8 +26,8 @@ from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
 
 # Set up socket connection to rover
-sendSocket = socket(AF_INET, SOCK_DGRAM)
-sendSocket.connect((ROVER_IP, ROVER_PORT))
+send_socket = socket(AF_INET, SOCK_DGRAM)
+send_socket.connect((ROVER_IP, ROVER_PORT))
 
 # Initialise pygame
 pygame.init()
@@ -49,8 +49,8 @@ clock = pygame.time.Clock()
 # Create instance of FeedManager and set up CameraFeeds 
 fm = FeedManager()
 
-fm.add_feed(CameraFeed("Phone (via IP)", URLS[0], (80, 90), (550, 400)))
-fm.add_feed(CameraFeed("Webcam", URLS[1], (628, 90), (550, 400)))
+fm.add_feed(CameraFeed(*URLS[0], (80, 90), (550, 400)))
+fm.add_feed(CameraFeed(*URLS[1], (628, 90), (550, 400)))
 
 # List of connected controllers
 controllers = []
@@ -61,7 +61,7 @@ spacesoc_img = pygame.transform.smoothscale(pygame.image.load(IMG_DIR + "spaceso
 olympus_img = pygame.transform.smoothscale(pygame.image.load(IMG_DIR + "olympus.png"), (57, 64))
 
 # Create ActionHandler object
-ah = ActionHandler(sendSocket, fm)
+ah = ActionHandler(send_socket, fm)
 
 # Main loop
 while not done:
@@ -95,11 +95,11 @@ while not done:
 			elif event.type == pygame.JOYBUTTONDOWN and event.joy == cont_index:
 				ah.button_press(event.button)
 
-			# Controller (dpad)
-			elif event.type == pygame.JOYHATMOTION and event.joy == cont_index:
-				dirs = ["L", "R", "D", "U"]
-				for i, x in enumerate(controllers[cont_index].dpad_val_to_list(event.value)):
-					if x: ah.button_press(f"DPAD_{dirs[i]}")
+			# # Controller (dpad) --- DPAD buttons will be held down to pan/ tilt camera
+			# elif event.type == pygame.JOYHATMOTION and event.joy == cont_index:
+			# 	dirs = ["L", "R", "D", "U"]
+			# 	for i, x in enumerate(controllers[cont_index].dpad_val_to_list(event.value)):
+			# 		if x: ah.button_press(f"DPAD_{dirs[i]}")
 
 	# Clear screen to black
 	screen.fill((0, 0, 0))
@@ -188,13 +188,16 @@ while not done:
 		controllers[cont_index].draw_state(screen, HEIGHT)
 
 		# Send controller state to rover
-		ah.send_controller_state()
+		ah.send_commands()
+
+	# Displaying rover feedback
+	# ***
 
 	# Update the screen
 	pygame.display.flip()
 
 	# Limit to 60 frames per second
-	clock.tick(60)
+	clock.tick(30)
 
 fm.release_feeds()
 pygame.quit()

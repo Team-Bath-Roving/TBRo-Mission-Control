@@ -1,6 +1,6 @@
 import pygame
 import json
-import random
+from datetime import datetime
 
 # Keybinds
 SWAP_FEEDS = [pygame.K_o, pygame.CONTROLLER_BUTTON_A]
@@ -20,18 +20,53 @@ class ActionHandler:
 		'''Changes the currently stored input controller'''
 		self.Controller = new_cont
 
-	def send_controller_state(self):
-		'''Send the current state of the controller to the rover'''
-		if (not self.Controller is None):
-			# Make list of full controller state
-			state = [
-				str(random.randint(0, 9999)).zfill(4), # TEMP: means you can see if msgs are being sent over network
-				self.Controller.buttons,
-				self.Controller.dpad,
-				self.Controller.axes
-			]
-			# Convert list to JSON string then encode to bytes and send
-			self.soc.send(json.dumps(state).encode())
+	def send_commands(self):
+		'''Send commands to rover if the controller is being acted on'''
+		# Set up msg with current time
+		msg = [
+			datetime.now().strftime("%H:%M:%S.%f")[:-3]
+		]
+
+		# LJOY (VERTICAL) - MOVE FORWARD/ BACKWARDS
+		if abs(self.Controller.axes[1]) > 0.01:
+			msg.append({"FORWARD": self.Controller.axes[1]})
+
+		# RJOY (HORIZONTAL) - MOVE LEFT/ RIGHT
+		if abs(self.Controller.axes[3]) > 0.01:
+			msg.append({"TURN": self.Controller.axes[3]})
+
+		# DPAD (LEFT/ RIGHT) - PAN CAMERA
+		if self.Controller.dpad[0]:
+			msg.append({"CAM_PAN": -1})
+		elif self.Controller.dpad[1]:
+			msg.append({"CAM_PAN": 1})
+
+		# DPAD (DOWN/ UP) - TILT CAMERA
+		if self.Controller.dpad[2]:
+			msg.append({"CAM_TILT": -1})
+		elif self.Controller.dpad[3]:
+			msg.append({"CAM_TILT": 1})
+
+		# LEFT/ RIGHT BUMPER - TRIGGER DIRECTION
+		trigger_dir = -int(self.Controller.buttons[4]) + int(self.Controller.buttons[5]) 
+
+		# LEFT TRIGGER - SCOOP
+		if trigger_dir and self.Controller.axes[2] > 0.05:
+			msg.append({"SCOOP": trigger_dir * self.Controller.axes[2]})
+
+		# RIGHT TRIGGER - BRUSH
+		if trigger_dir and self.Controller.axes[5] > 0.05:
+			msg.append({"BRUSH": trigger_dir * self.Controller.axes[5]})
+
+		# Only send if commands were added
+		if len(msg) > 1:
+			# Catch exception if msg cannot be sent
+			try:
+				# Convert list to JSON string then encode to bytes and send
+				self.soc.sendall(json.dumps(msg).encode())
+			except:
+				# TODO: Log this somehow
+				return
 
 	def button_press(self, b):
 		'''Calls a function after button on keyboard or controller is pressed'''
