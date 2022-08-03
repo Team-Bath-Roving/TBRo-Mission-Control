@@ -4,7 +4,8 @@ import numpy as np
 '''
 Button order: A, B, X, Y, LB, RB, LS, RS, Back, Guide, Start
 D-Pad order: L, R, D, U
-Axes order: L-Vert, L-Hor, R-Vert, R-Hor, LT, RT
+Axes order: L-Hor, L-Ver, LT, R-Hor, R-Ver, RT
+	- Joystick axes range: [-1, 1], Trigger axes range: [0, 1]
 '''
 
 class Controller:
@@ -19,7 +20,7 @@ class Controller:
 
 		self.buttons = [False] * 11
 		self.dpad = [False] * 4
-		self.axes = [0.0, 0.0, 0.0, 0.0, -1.0, -1.0]
+		self.axes = [0.0] * 6
 
 	def dpad_val_to_list(self, hat):
 		'''Converts a dpad value (tuple of two ints) to list of bools'''
@@ -52,11 +53,16 @@ class Controller:
 		self.dpad = self.dpad_val_to_list(hat)
 	
 		# Axes
-		for obj_index, joystick_index in enumerate([0, 1, 3, 4, 2, 5]):
-			if joystick_index in [1, 4]:  # Invert vertical axes
-				self.axes[obj_index] = (-self.joystick.get_axis(joystick_index) + 1) / 2
+		for i in range(6):
+			# Trigger axis
+			if i % 3 == 2:
+				self.axes[i] = (self.joystick.get_axis(i) + 1) / 2
+			# Joystick vertical (inverted to up = positive)
+			elif i % 3 == 1:
+				self.axes[i] = -self.joystick.get_axis(i)
+			# Joystick horizontal
 			else:
-				self.axes[obj_index] = (self.joystick.get_axis(joystick_index) + 1) / 2
+				self.axes[i] = self.joystick.get_axis(i)
 	
 	def draw_bar(self, axis, screen, coord, dim=(30, 80)):
 		'''Draw a bar for a specific axis'''
@@ -94,8 +100,8 @@ class Controller:
 
 		# Inner circle
 		joy_pos = (
-			radius * (self.axes[2 * joy] * 1.8 - 0.9),
-			radius * -(self.axes[2 * joy + 1] * 1.8 - 0.9)
+			radius * (self.axes[joy] * 0.9),
+			radius * -(self.axes[joy + 1] * 0.9)
 		)
 		pygame.draw.circle(
 			screen,
@@ -140,8 +146,8 @@ class Controller:
 		'''Draw the full current state of the controller'''
 		self.draw_dpad(screen, (70, max_height - 55))
 		self.draw_joystick(0, screen, (120, max_height - 95), 40)
-		self.draw_joystick(1, screen, (210, max_height - 95), 40)
-		self.draw_bars_list([4, 5], screen, (300, max_height - 95), (30, 80))
+		self.draw_joystick(3, screen, (210, max_height - 95), 40)
+		self.draw_bars_list([2, 5], screen, (300, max_height - 95), (30, 80))
 		for i in range(11):
 			self.draw_button_circle(i, screen, (
 				385 + 25 * (i % 4), 
