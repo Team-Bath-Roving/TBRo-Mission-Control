@@ -1,21 +1,28 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 import json
 
-PORT_NUMBER = 5000
+# Network information
+RECEIVE_PORT = 5000
 SIZE = 1024
 
-mySocket = socket(AF_INET, SOCK_DGRAM)
-mySocket.bind(("", PORT_NUMBER))
+# Set up socket for listening
+receive_socket = socket(AF_INET, SOCK_DGRAM)
+receive_socket.bind(("", RECEIVE_PORT))
 
 print("Receiving commands from mission control")
-print(f"Listening on port {PORT_NUMBER}\n")
+print(f"Listening on port {RECEIVE_PORT}\n")
 
 while True:
-	data, addr = mySocket.recvfrom(SIZE)
+	data, addr = receive_socket.recvfrom(SIZE)
 	data = data.decode()
 
+	# Press Q in mission control to kill this program
 	if "QUIT_ROVER" in str(data):
-		raise SystemExit
+		print("\nQUITTING")
+		break
 	else:
 		data = json.loads(data)
 		print(f"{data}")
+
+receive_socket.close()
+raise SystemExit
