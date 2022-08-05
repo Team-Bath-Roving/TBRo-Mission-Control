@@ -8,6 +8,8 @@ Axes order: L-Hor, L-Ver, LT, R-Hor, R-Ver, RT
 	- Joystick axes range: [-1, 1], Trigger axes range: [0, 1]
 '''
 
+NUM_BTNS = 6
+
 class Controller:
 	'''
 	Controller class dealing with inputs, displaying current state and sending data to rover
@@ -46,7 +48,7 @@ class Controller:
 	def get_state(self):
 		'''Get the current state of the controller inputs and store in the object'''
 		# Buttons
-		self.buttons = [bool(self.joystick.get_button(i)) for i in range(11)]
+		self.buttons = [bool(self.joystick.get_button(i)) for i in range(NUM_BTNS)]
 	
 		# D-pad
 		hat = self.joystick.get_hat(0)
@@ -148,7 +150,7 @@ class Controller:
 		self.draw_joystick(0, screen, (120, max_height - 95), 40)
 		self.draw_joystick(3, screen, (210, max_height - 95), 40)
 		self.draw_bars_list([2, 5], screen, (300, max_height - 95), (30, 80))
-		for i in range(11):
+		for i in range(NUM_BTNS):
 			self.draw_button_circle(i, screen, (
 				385 + 25 * (i % 4), 
 				max_height - 80 + 25 * (i // 4)
