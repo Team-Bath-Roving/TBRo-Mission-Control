@@ -4,6 +4,9 @@ from datetime import datetime
 
 from .CameraFeed import CameraFeed
 
+# zero buffers
+zero_buffer = [True] * 6
+
 # Keybinds
 SWAP_FEEDS = [pygame.K_o]
 CYCLE_CAM_MODE = [pygame.K_p]
@@ -49,22 +52,40 @@ class ActionHandler:
 		# LJOY (VERTICAL) - MOVE FORWARD/ BACKWARDS
 		if abs(self.Controller.axes[1]) > 0.01:
 			msg.append({"FORWARD": self.Controller.axes[1]})
+			zero_buffer[0] = False
+		elif not zero_buffer[0]:
+			msg.append({"FORWARD": 0})
+			zero_buffer[0] = True
 
 		# RJOY (HORIZONTAL) - MOVE LEFT/ RIGHT
 		if abs(self.Controller.axes[3]) > 0.01:
 			msg.append({"TURN": self.Controller.axes[3]})
+			zero_buffer[1] = False
+		elif not zero_buffer[1]:
+			msg.append({"TURN": 0})
+			zero_buffer[1] = True
 
 		# DPAD (LEFT/ RIGHT) - PAN CAMERA
 		if self.Controller.dpad[0]:
 			msg.append({"CAM_PAN": -1})
+			zero_buffer[2] = False
 		elif self.Controller.dpad[1]:
 			msg.append({"CAM_PAN": 1})
+			zero_buffer[2] = False
+		elif not zero_buffer[2]:
+			msg.append({"CAM_PAN": 0})
+			zero_buffer[2] = True
 
 		# DPAD (DOWN/ UP) - TILT CAMERA
 		if self.Controller.dpad[2]:
 			msg.append({"CAM_TILT": -1})
+			zero_buffer[3] = False
 		elif self.Controller.dpad[3]:
 			msg.append({"CAM_TILT": 1})
+			zero_buffer[3] = False
+		elif not zero_buffer[3]:
+			msg.append({"CAM_TILT": 0})
+			zero_buffer[3] = True
 
 		# LEFT/ RIGHT BUMPER - TRIGGER DIRECTION
 		trigger_dir = -int(self.Controller.buttons[4]) + int(self.Controller.buttons[5]) 
@@ -72,10 +93,18 @@ class ActionHandler:
 		# LEFT TRIGGER - SCOOP
 		if trigger_dir and self.Controller.axes[2] > 0.05:
 			msg.append({"SCOOP": trigger_dir * self.Controller.axes[2]})
+			zero_buffer[4] = False
+		elif not zero_buffer[4]:
+			msg.append({"SCOOP": 0})
+			zero_buffer[4] = True
 
 		# RIGHT TRIGGER - BRUSH
 		if trigger_dir and self.Controller.axes[5] > 0.05:
 			msg.append({"BRUSH": trigger_dir * self.Controller.axes[5]})
+			zero_buffer[5] = False
+		elif not zero_buffer[5]:
+			msg.append({"BRUSH": 0})
+			zero_buffer[5] = True
 
 		# Only send if commands were added
 		if len(msg) > 0:
