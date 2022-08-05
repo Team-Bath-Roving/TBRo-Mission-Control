@@ -2,11 +2,14 @@ import pygame
 import json
 from datetime import datetime
 
+from .CameraFeed import CameraFeed
+
 # Keybinds
 SWAP_FEEDS = [pygame.K_o]
 CYCLE_CAM_MODE = [pygame.K_p]
-BUTTON_A = [pygame.CONTROLLER_BUTTON_A] # Can rename these
-BUTTON_B = [pygame.CONTROLLER_BUTTON_B]
+RESET_FEEDS = [pygame.K_i]
+BUTTON_A = [pygame.K_a, pygame.CONTROLLER_BUTTON_A] # Can rename these
+BUTTON_B = [pygame.K_b, pygame.CONTROLLER_BUTTON_B]
 BUTTON_X = [pygame.CONTROLLER_BUTTON_X]
 BUTTON_Y = [pygame.CONTROLLER_BUTTON_Y]
 
@@ -15,10 +18,12 @@ class ActionHandler:
 	'''
 	Handles all actions performed after button presses, etc
 	'''
-	def __init__(self, sendSocket, fm, cont=None):
+	def __init__(self, sendSocket, fm, URLS, cont=None):
 		self.soc = sendSocket
 		self.FeedManager = fm
 		self.Controller = cont
+
+		self.URLS = URLS
 
 	def set_controller(self, new_cont):
 		'''Changes the currently stored input controller'''
@@ -82,6 +87,8 @@ class ActionHandler:
 			self.swap_feeds()
 		elif b in CYCLE_CAM_MODE:
 			self.cycle_cam_mode()
+		elif b in RESET_FEEDS:
+			self.reset_feeds()
 		elif b in BUTTON_A:
 			self.button_function("A")
 		elif b in BUTTON_B:
@@ -98,6 +105,13 @@ class ActionHandler:
 	def cycle_cam_mode(self):
 		'''Cycles between ways organising camera feeds'''
 		self.FeedManager.cycle_mode()
+	
+	def reset_feeds(self):
+		self.FeedManager.release_feeds()
+		self.FeedManager.feeds = [
+			CameraFeed(*self.URLS[0], (80, 90), (550, 400)),
+			CameraFeed(*self.URLS[1], (628, 90), (550, 400))
+		]
 
 	def button_function(self, button):
 		'''[Template] A function triggered by a controller button'''
