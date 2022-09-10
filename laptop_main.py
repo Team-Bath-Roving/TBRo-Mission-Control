@@ -6,26 +6,27 @@ URLS = [
 ]
 
 # Directory of image files
-IMG_DIR = "TBRo-Mission-Control/img/"
+IMG_DIR = "img/"
 
 # Network information
-ROVER_IP = "192.168.0.25"
+ROVER_IP = "192.168.0.50"
 SEND_PORT = 5000
-RECEIVE_PORT = 5001
-SIZE = 1024
+RECEIVE_PORT = 9850
+SIZE = 4096 # not used below
 
 # ========================================================
 
 # Import modules
+from base64 import encode
 import pygame
 import datetime
 import marstime
-import json
-from socket import socket, AF_INET, SOCK_DGRAM
+import struct
+from socket import socket, AF_INET, SOCK_DGRAM, SOCK_STREAM
 from multiprocessing import Queue, Process
 
 from classes.FeedManager import FeedManager
-from classes.CameraFeed import CameraFeed
+# from classes.CameraFeed import CameraFeed
 from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
 
@@ -33,15 +34,42 @@ from classes.ActionHandler import ActionHandler
 def listen_function(q):
 
 	# Set up socket for receiving
-	receive_socket = socket(AF_INET, SOCK_DGRAM)
+	receive_socket = socket(AF_INET, SOCK_STREAM)
 	receive_socket.bind(("", RECEIVE_PORT))
-	
-	while True:
-		data, _ = receive_socket.recvfrom(1024)
-		data = data.decode()
+	receive_socket.listen(10)
 
-		print(f"{data}")
-		q.put(data)
+	conn, _ = receive_socket.accept()
+
+	data = b"" 
+	
+	# Set payload size to match client
+	payload_size = struct.calcsize("<II")
+
+	while True:
+		while len(data) < payload_size:
+			data += conn.recv(4096)
+
+		# Get the expected message size from received data
+		msg_sizes = struct.unpack("<II", data[:payload_size])
+		msg_size1 = msg_sizes[0]
+		msg_size2 = msg_sizes[1]
+
+		# Exclude the msg_size from data
+		data = data[payload_size:]
+
+		# Retrieve all the data now that we know message size
+		while len(data) < msg_size1 + msg_size2:
+			data += conn.recv(4096)
+
+		# Exclude any additional bytes at the end of the binary string
+		encoded_data1 = data[:msg_size1]
+		encoded_data2 = data[msg_size1:msg_size1 + msg_size2]
+
+		q.put(encoded_data1)
+		q.put(encoded_data2)
+
+		# Exclude the encoded data, taking anything extra forward to the next iteration
+		data = data[msg_size1 + msg_size2:]
 
 # Pygame function
 def pygame_function(q):
@@ -49,9 +77,6 @@ def pygame_function(q):
 	# Set up socket for sending
 	send_socket = socket(AF_INET, SOCK_DGRAM)
 	send_socket.connect((ROVER_IP, SEND_PORT))
-
-	# List of commands received from rover
-	received_commands = []
 	
 	# Initialise pygame
 	pygame.init()
@@ -71,10 +96,12 @@ def pygame_function(q):
 	clock = pygame.time.Clock()
 
 	# Create instance of FeedManager and set up CameraFeeds 
-	fm = FeedManager()
+	fm = FeedManager(screen, ["External Webcam", "Built-in Webcam"])
+	# fm.add_feed(CameraFeed(*URLS[0], (80, 90), (550, 400)))
+	# fm.add_feed(CameraFeed(*URLS[1], (628, 90), (550, 400)))
 
-	fm.add_feed(CameraFeed(*URLS[0], (80, 90), (550, 400)))
-	fm.add_feed(CameraFeed(*URLS[1], (628, 90), (550, 400)))
+	# Encoded frames received from rover
+	encoded_frames = [False, False]
 
 	# List of connected controllers
 	controllers = []
@@ -183,9 +210,6 @@ def pygame_function(q):
 			btr.center = bottom_rect.center
 			screen.blit(bottom_text, btr)
 
-		# Displaying camera feeds
-		fm.display_feeds(screen)
-
 		# Set up controllers
 		num_conts = pygame.joystick.get_count()
 		if num_conts != len(controllers):
@@ -217,14 +241,11 @@ def pygame_function(q):
 			ah.send_commands()
 
 		# Displaying rover feedback
-		while not q.empty():
-			received_commands.append(q.get())
-			if len(received_commands) > 7:
-				received_commands.pop(0)
-
-		for i, cmd in enumerate(received_commands[::-1]):
-			text = pygame.font.SysFont("monospace", 16).render(cmd, True, WHITE)
-			screen.blit(text, (550, 670 + i * 18))
+		if q.full():
+			encoded_frames = [q.get(), q.get()]
+			
+		# Displaying camera feeds
+		fm.display_feeds(*encoded_frames)
 
 		# Update the screen
 		pygame.display.flip()
@@ -232,14 +253,14 @@ def pygame_function(q):
 		# Limit to 60 frames per second
 		clock.tick(30)
 
-	fm.release_feeds()
+	# fm.release_feeds()
 	pygame.quit()
 	raise SystemExit
 
 
 # Running the program
 if __name__ == "__main__":
-	q = Queue()
+	q = Queue(2)
 
 	proc = Process(target=listen_function, daemon=True, args=(q,))
 	proc.start()

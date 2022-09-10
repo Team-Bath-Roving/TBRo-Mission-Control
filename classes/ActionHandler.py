@@ -21,14 +21,14 @@ class ActionHandler:
 	'''
 	Handles all actions performed after button presses, etc
 	'''
-	def __init__(self, sendSocket, fm, URLS, cont=None):
+	def __init__(self, sendSocket, fm, cont=None):
 		self.soc = sendSocket
 		self.FeedManager = fm
 		self.Controller = cont
 
 		self.pow_mult = 1
 
-		self.URLS = URLS
+		# self.URLS = URLS
 
 	def set_controller(self, new_cont):
 		'''Changes the currently stored input controller'''
@@ -44,7 +44,7 @@ class ActionHandler:
 			# Convert list to JSON string then encode to bytes and send
 			self.soc.sendall(json.dumps(msg).encode())
 		except:
-			# TODO: Log this somehow
+			# Log this somehow
 			print("test")
 			return
 
@@ -118,8 +118,8 @@ class ActionHandler:
 			self.swap_feeds()
 		elif b in CYCLE_CAM_MODE:
 			self.cycle_cam_mode()
-		elif b in RESET_FEEDS:
-			self.reset_feeds()
+		# elif b in RESET_FEEDS:
+		# 	self.reset_feeds()
 		elif b in BUTTON_N:
 			if self.pow_mult > 0:
 				self.adjust_power(-0.05)
@@ -137,12 +137,12 @@ class ActionHandler:
 		'''Cycles between ways organising camera feeds'''
 		self.FeedManager.cycle_mode()
 	
-	def reset_feeds(self):
-		self.FeedManager.release_feeds()
-		self.FeedManager.feeds = [
-			CameraFeed(*self.URLS[0], (80, 90), (550, 400)),
-			CameraFeed(*self.URLS[1], (628, 90), (550, 400))
-		]
+	# def reset_feeds(self):
+	# 	self.FeedManager.release_feeds()
+	# 	self.FeedManager.feeds = [
+	# 		CameraFeed(*self.URLS[0], (80, 90), (550, 400)),
+	# 		CameraFeed(*self.URLS[1], (628, 90), (550, 400))
+	# 	]
 
 	def button_function(self, button):
 		'''[Template] A function triggered by a controller button'''
