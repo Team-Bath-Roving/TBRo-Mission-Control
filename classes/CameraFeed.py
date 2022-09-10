@@ -20,6 +20,7 @@ class CameraFeed:
 		if self.url == None: return False
 
 		self.capture = cv2.VideoCapture(self.url)
+		self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 		return not self.capture is None and self.capture.isOpened()  # Return False is the feed isn't present
 
 	def prepare_frame(self):
