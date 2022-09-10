@@ -1,2 +1,3 @@
 .DS_Store
 classes/__pycache__/*
+.vscode/settings.json

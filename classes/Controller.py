@@ -8,8 +8,6 @@ Axes order: L-Hor, L-Ver, LT, R-Hor, R-Ver, RT
 	- Joystick axes range: [-1, 1], Trigger axes range: [0, 1]
 '''
 
-NUM_BTNS = 6
-
 class Controller:
 	'''
 	Controller class dealing with inputs, displaying current state and sending data to rover
@@ -48,23 +46,35 @@ class Controller:
 	def get_state(self):
 		'''Get the current state of the controller inputs and store in the object'''
 		# Buttons
-		self.buttons = [bool(self.joystick.get_button(i)) for i in range(NUM_BTNS)]
+		self.buttons = [bool(self.joystick.get_button(i)) for i in range(11)]
 	
 		# D-pad
-		hat = self.joystick.get_hat(0)
-		self.dpad = self.dpad_val_to_list(hat)
+		# hat = self.joystick.get_hat(0)
+		# self.dpad = self.dpad_val_to_list(hat)
 	
 		# Axes
-		for i in range(6):
+		for i, j in enumerate([0, 1, 4, 2, 3, 5]):
+			### FOR WINDOWS:
+			# # Trigger axis
+			# if i in [4, 5]:
+			# 	self.axes[i] = (self.joystick.get_axis(i) + 1) / 2
+			# # Joystick vertical (inverted to up = positive)
+			# elif i in [1, 3]:
+			# 	self.axes[i] = -self.joystick.get_axis(i)
+			# # Joystick horizontal
+			# else:
+			# 	self.axes[i] = self.joystick.get_axis(i)
+
+
 			# Trigger axis
 			if i % 3 == 2:
-				self.axes[i] = (self.joystick.get_axis(i) + 1) / 2
+				self.axes[j] = (self.joystick.get_axis(i) + 1) / 2
 			# Joystick vertical (inverted to up = positive)
 			elif i % 3 == 1:
-				self.axes[i] = -self.joystick.get_axis(i)
+				self.axes[j] = -self.joystick.get_axis(i)
 			# Joystick horizontal
 			else:
-				self.axes[i] = self.joystick.get_axis(i)
+				self.axes[j] = self.joystick.get_axis(i)
 	
 	def draw_bar(self, axis, screen, coord, dim=(30, 80)):
 		'''Draw a bar for a specific axis'''
@@ -146,11 +156,11 @@ class Controller:
 
 	def draw_state(self, screen, max_height):
 		'''Draw the full current state of the controller'''
-		self.draw_dpad(screen, (70, max_height - 55))
+		# self.draw_dpad(screen, (70, max_height - 55))
 		self.draw_joystick(0, screen, (120, max_height - 95), 40)
-		self.draw_joystick(3, screen, (210, max_height - 95), 40)
-		self.draw_bars_list([2, 5], screen, (300, max_height - 95), (30, 80))
-		for i in range(NUM_BTNS):
+		self.draw_joystick(2, screen, (210, max_height - 95), 40)
+		self.draw_bars_list([4, 5], screen, (300, max_height - 95), (30, 80))
+		for i in range(11):
 			self.draw_button_circle(i, screen, (
 				385 + 25 * (i % 4), 
 				max_height - 80 + 25 * (i // 4)
