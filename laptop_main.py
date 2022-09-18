@@ -82,13 +82,10 @@ def pygame_function(q):
 	pygame.init()
 
 	# Create screen, set dimensions, set caption
-	# WIDTH, HEIGHT = 1200, 785
-	# screen = pygame.display.set_mode((WIDTH, HEIGHT + 15), pygame.RESIZABLE)
-	screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+	WIDTH, HEIGHT = 1200, 785
+	# WIDTH, HEIGHT = 1440, 845
+	screen = pygame.display.set_mode((WIDTH, HEIGHT + 15), pygame.RESIZABLE)
 	pygame.display.set_caption("TBRo Mission Control")
-
-	WIDTH, HEIGHT = screen.get_size()
-	HEIGHT -= 15
 
 	# Define colour white (commonly used)
 	WHITE = (255, 255, 255)
@@ -250,12 +247,12 @@ def pygame_function(q):
 			s += " | "
 			s += "BRUSH OUT" if (controllers[cont_index].buttons[5]) else "BRUSH IN"
 			text = pygame.font.SysFont("monospace", 24).render(s, True, WHITE)
-			screen.blit(text, (560, 700))
+			screen.blit(text, (560, HEIGHT - 85))
 
 			# POWER
 			s = f"Power Mult: {ah.pow_mult:.2f}"
 			text = pygame.font.SysFont("monospace", 24).render(s, True, WHITE)
-			screen.blit(text, (560, 728))
+			screen.blit(text, (560, HEIGHT - 57))
 
 		# Displaying rover feedback
 		if q.full():
