@@ -49,8 +49,8 @@ class Controller:
 		self.buttons = [bool(self.joystick.get_button(i)) for i in range(11)]
 	
 		# D-pad
-		# hat = self.joystick.get_hat(0)
-		# self.dpad = self.dpad_val_to_list(hat)
+		hat = self.joystick.get_hat(0)
+		self.dpad = self.dpad_val_to_list(hat)
 	
 		# Axes
 		for i, j in enumerate([0, 1, 4, 2, 3, 5]):
@@ -156,7 +156,7 @@ class Controller:
 
 	def draw_state(self, screen, max_height):
 		'''Draw the full current state of the controller'''
-		# self.draw_dpad(screen, (70, max_height - 55))
+		self.draw_dpad(screen, (70, max_height - 55))
 		self.draw_joystick(0, screen, (120, max_height - 95), 40)
 		self.draw_joystick(2, screen, (210, max_height - 95), 40)
 		self.draw_bars_list([4, 5], screen, (300, max_height - 95), (30, 80))

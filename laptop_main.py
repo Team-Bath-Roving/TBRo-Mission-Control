@@ -82,9 +82,13 @@ def pygame_function(q):
 	pygame.init()
 
 	# Create screen, set dimensions, set caption
-	WIDTH, HEIGHT = 1200, 785
-	screen = pygame.display.set_mode((WIDTH, HEIGHT + 15), pygame.RESIZABLE)
+	# WIDTH, HEIGHT = 1200, 785
+	# screen = pygame.display.set_mode((WIDTH, HEIGHT + 15), pygame.RESIZABLE)
+	screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 	pygame.display.set_caption("TBRo Mission Control")
+
+	WIDTH, HEIGHT = screen.get_size()
+	HEIGHT -= 15
 
 	# Define colour white (commonly used)
 	WHITE = (255, 255, 255)
@@ -159,9 +163,9 @@ def pygame_function(q):
 
 		# Border lines
 		pygame.draw.line(screen, WHITE, (10, 70), (WIDTH - 10, 70))
-		pygame.draw.line(screen, WHITE, (60, 70), (60, 660))
-		pygame.draw.line(screen, WHITE, (10, 660), (WIDTH - 10, 660))
-		pygame.draw.line(screen, WHITE, (530, 660), (530, HEIGHT - 10))
+		pygame.draw.line(screen, WHITE, (60, 70), (60, HEIGHT - 125))
+		pygame.draw.line(screen, WHITE, (10, HEIGHT - 125), (WIDTH - 10, HEIGHT - 125))
+		pygame.draw.line(screen, WHITE, (530, HEIGHT - 125), (530, HEIGHT - 10))
 
 		# Corner images
 		screen.blit(spacesoc_img, (10, 3))
