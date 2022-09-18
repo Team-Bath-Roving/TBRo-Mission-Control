@@ -244,6 +244,19 @@ def pygame_function(q):
 			# Send controller state to rover
 			ah.send_commands()
 
+			# BUMPERS
+			s = ""
+			s += "SCOOP UP  " if (controllers[cont_index].buttons[4]) else "SCOOP DOWN"
+			s += " | "
+			s += "BRUSH OUT" if (controllers[cont_index].buttons[5]) else "BRUSH IN"
+			text = pygame.font.SysFont("monospace", 24).render(s, True, WHITE)
+			screen.blit(text, (560, 700))
+
+			# POWER
+			s = f"Power Mult: {ah.pow_mult:.2f}"
+			text = pygame.font.SysFont("monospace", 24).render(s, True, WHITE)
+			screen.blit(text, (560, 728))
+
 		# Displaying rover feedback
 		if q.full():
 			encoded_frames = [q.get(), q.get()]
