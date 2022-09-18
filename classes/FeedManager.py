@@ -32,7 +32,7 @@ class FeedManager:
 		# Loop back over if required
 		if self.mode > 1: self.mode = 0
 
-	def decode_frame(self, encoded_data):
+	def decode_frame(self, encoded_data, ratio=16/9):
 		'''Decodes bytes into a numpy array representing a frame'''
 		# If there is no data, return False
 		if not encoded_data: return False
@@ -41,7 +41,7 @@ class FeedManager:
 
 		BPP = 1 # bytes per pixel (3 for RGB, 1 for greyscale (or other compression))
 
-		j = 16/9 # known ratio of width/height
+		j = ratio # 16/9 # known ratio of width/height
 		k = flat_frame.shape[0] // BPP
 
 		w = int(np.sqrt(k * j)) # here we do some maths to work out width and height
