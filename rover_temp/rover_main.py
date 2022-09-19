@@ -42,10 +42,6 @@ while True:
 
 				# Flip the frame
 				# res_frame = cv2.flip(res_frame, 1)
-
-				# # Get information about the frame numpy array
-				# shape = res_frame.shape
-				# dtype = res_frame.dtype.str
 			else:
 				print(f"Skipped 1 {randint(100, 999)}")
 
@@ -65,10 +61,6 @@ while True:
 
 				# Flip the frame
 				# res_frame = cv2.flip(res_frame, 1)
-
-				# # Get information about the frame numpy array
-				# shape = res_frame.shape
-				# dtype = res_frame.dtype.str
 			else:
 				print(f"Skipped 2 {randint(100, 999)}")
 
@@ -83,18 +75,12 @@ while True:
 				# we know when we've received it all. So we use the "struct" library to 
 				# encode that integer length, l, into a fixed number of bytes - which can
 				# then be decoded and only data after than considered on the other end 
-			# l1 = len(encoded_data1)
-			# msg_size1 = struct.pack("<I", l1)
-			# l2 = len(encoded_data2)
-			# msg_size2 = struct.pack("<I", l2)
 			l1 = len(encoded_data1)
 			l2 = len(encoded_data2)
 			msg_sizes = struct.pack("<II", l1, l2)
 
 
 			# Send to PC
-			print(f"sending {l1 + l2} bytes : {randint(100, 999)}")
-			# mysocket.sendall(msg_size1 + msg_size2 + encoded_data1 + encoded_data2)
 			mysocket.sendall(msg_sizes + encoded_data1 + encoded_data2)
 
 		
