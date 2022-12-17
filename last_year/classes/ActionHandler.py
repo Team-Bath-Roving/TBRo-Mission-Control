@@ -3,7 +3,6 @@ import pygame
 import json
 from datetime import datetime
 from time import sleep
-from .CameraFeed import CameraFeed
 
 # zero buffers
 zero_buffer = [True] * 6
@@ -45,7 +44,7 @@ class ActionHandler:
 			self.soc.sendall(json.dumps(msg).encode())
 		except:
 			# Log this somehow
-			print("test")
+			print("Could not send data")
 			return
 
 	def send_commands(self):
@@ -136,13 +135,6 @@ class ActionHandler:
 	def cycle_cam_mode(self):
 		'''Cycles between ways organising camera feeds'''
 		self.FeedManager.cycle_mode()
-	
-	# def reset_feeds(self):
-	# 	self.FeedManager.release_feeds()
-	# 	self.FeedManager.feeds = [
-	# 		CameraFeed(*self.URLS[0], (80, 90), (550, 400)),
-	# 		CameraFeed(*self.URLS[1], (628, 90), (550, 400))
-	# 	]
 
 	def button_function(self, button):
 		'''[Template] A function triggered by a controller button'''

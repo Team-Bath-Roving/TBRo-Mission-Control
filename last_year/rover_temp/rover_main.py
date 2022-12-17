@@ -5,15 +5,15 @@ import struct
 from random import randint
 import time
 
-# MY_IP = "localhost"
+MY_IP = "localhost"
 # MY_IP = "192.168.0.25"
-MY_IP = "DESKTOP-DK0M68F.local"
+# MY_IP = "DESKTOP-DK0M68F.local"
 
 
 # EXTERNAL WEBCAM #
 cap1 = cv2.VideoCapture(0)
 # MAC WEBCAM #
-cap2 = cv2.VideoCapture(1)
+cap2 = cv2.VideoCapture(0)
 
 mysocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 mysocket.connect((MY_IP, 9850))
@@ -21,9 +21,11 @@ print("socket connected")
 
 a = time.perf_counter()
 
+freq = 1 / 20 # 20 fps
+
 while True:
 	# Only loop once every 0.05 seconds (20 fps) -- *** Make easily customisable
-	if time.perf_counter() - a > 0.05:
+	if time.perf_counter() - a > freq:
 
 		try:
 			# CAP 1
@@ -34,7 +36,7 @@ while True:
 			if ret:
 
 				# Convert to greyscale (1/3 of size)
-				frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+				# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 				# Scale down to lower resolution
 				sc = 0.3
@@ -53,7 +55,7 @@ while True:
 			if ret:
 
 				# Convert to greyscale (1/3 of size)
-				frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+				# frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 				# Scale down to lower resolution
 				sc = 0.4

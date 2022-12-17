@@ -39,7 +39,7 @@ class FeedManager:
 
 		flat_frame = np.frombuffer(encoded_data, dtype="uint8")
 
-		BPP = 1 # bytes per pixel (3 for RGB, 1 for greyscale (or other compression))
+		BPP = 3 # bytes per pixel (3 for RGB, 1 for greyscale (or other compression))
 
 		j = ratio # 16/9 # known ratio of width/height
 		k = flat_frame.shape[0] // BPP
@@ -54,7 +54,8 @@ class FeedManager:
 	def prepare_frame(self, frame, des_dim):
 		'''Transform and scale the frame to the desired size'''
 		# Invert, rotate and correctly colour
-		frame = cv2.cvtColor(np.rot90(np.fliplr(frame)), cv2.COLOR_GRAY2RGB)
+		# frame = cv2.cvtColor(np.rot90(np.fliplr(frame)), cv2.COLOR_GRAY2RGB) # GRAYSCALE
+		frame = cv2.cvtColor(np.rot90(np.fliplr(frame)), cv2.COLOR_BGR2RGB) # RGB
 
 		# Calculate required scale factor
 		cur_dim = frame.shape

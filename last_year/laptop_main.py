@@ -1,15 +1,9 @@
 '''Config'''
-# URLs of video feeds 
-URLS = [
-	["Webcam", 0],
-	["Phone (via IP)", None] # "http://192.168.77.163:4747/video"
-]
-
 # Directory of image files
 IMG_DIR = "img/"
 
 # Network information
-ROVER_IP = "192.168.0.50"
+ROVER_IP = "localhost" # "192.168.0.50"
 SEND_PORT = 5000
 RECEIVE_PORT = 9850
 SIZE = 4096 # not used below
@@ -98,8 +92,6 @@ def pygame_function(q):
 
 	# Create instance of FeedManager and set up CameraFeeds 
 	fm = FeedManager(screen, ["External Webcam", "Built-in Webcam"])
-	# fm.add_feed(CameraFeed(*URLS[0], (80, 90), (550, 400)))
-	# fm.add_feed(CameraFeed(*URLS[1], (628, 90), (550, 400)))
 
 	# Encoded frames received from rover
 	encoded_frames = [False, False]
