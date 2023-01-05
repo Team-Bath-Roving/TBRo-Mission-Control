@@ -15,6 +15,36 @@ BUTTON_N = [pygame.K_n, pygame.CONTROLLER_BUTTON_A] # Can rename these
 BUTTON_M = [pygame.K_m, pygame.CONTROLLER_BUTTON_B]
 BUTTON_T = [pygame.K_t]
 
+# Button and axis mapping
+
+from enum import Enum
+class Axes(Enum):
+	L_TRIG=4
+	R_TRIG=5
+	L_HOR=0
+	L_VER=1
+	R_HOR=2
+	R_VER=3
+
+class Dpad(Enum):
+	LEFT=0
+	RIGHT=1
+	DOWN=2
+	UP=3
+
+class Buttons(Enum):
+	A=0
+	B=1
+	X=2
+	Y=3
+	LB=4
+	RB=5
+	LS=6
+	RS=7
+	Back=8
+	Guide=9
+	Start=10
+
 # ActionHandler class
 class ActionHandler:
 	'''
@@ -53,16 +83,16 @@ class ActionHandler:
 		msg = []
 
 		# LJOY (VERTICAL) - MOVE FORWARD/ BACKWARDS
-		if abs(self.Controller.axes[1]) > 0.01:
-			msg.append({"FORWARD": self.pow_mult * self.Controller.axes[1]})
+		if abs(self.Controller.axes[Axes.L_VER]) > 0.01:
+			msg.append({"FORWARD": self.pow_mult * self.Controller.axes[Axes.L_VER]})
 			zero_buffer[0] = False
 		elif not zero_buffer[0]:
 			msg.append({"FORWARD": 0})
 			zero_buffer[0] = True
 
 		# RJOY (HORIZONTAL) - MOVE LEFT/ RIGHT
-		if abs(self.Controller.axes[2]) > 0.01:
-			msg.append({"TURN": self.Controller.axes[2]})
+		if abs(self.Controller.axes[Axes.R_HOR]) > 0.01:
+			msg.append({"TURN": self.Controller.axes[Axes.R_HOR]})
 			zero_buffer[1] = False
 		elif not zero_buffer[1]:
 			msg.append({"TURN": 0})
@@ -91,18 +121,18 @@ class ActionHandler:
 		# 	zero_buffer[3] = True
 
 		# LEFT TRIGGER - SCOOP
-		if self.Controller.axes[4] > 0.05:
-			v = 2 * int(self.Controller.buttons[4]) - 1
-			msg.append({"SCOOP": v * self.Controller.axes[4]})
+		if self.Controller.axes[Axes.L_TRIG] > 0.05:
+			v = 2 * int(self.Controller.buttons[Buttons.LT]) - 1
+			msg.append({"SCOOP": v * self.Controller.axes[Axes.L_TRIG]})
 			zero_buffer[4] = False
 		elif not zero_buffer[4]:
 			msg.append({"SCOOP": 0})
 			zero_buffer[4] = True
 
 		# RIGHT TRIGGER - BRUSH
-		if self.Controller.axes[5] > 0.05:
-			v = -2 * int(self.Controller.buttons[5]) + 1
-			msg.append({"BRUSH": v * self.Controller.axes[5]})
+		if self.Controller.axes[Axes.R_TRIG] > 0.05:
+			v = -2 * int(self.Controller.buttons[Buttons.RT]) + 1
+			msg.append({"BRUSH": v * self.Controller.axes[Axes.R_TRIG]})
 			zero_buffer[5] = False
 		elif not zero_buffer[5]:
 			msg.append({"BRUSH": 0})
