@@ -21,7 +21,7 @@ class ActionHandler:
 	Handles all actions performed after button presses, etc
 	'''
 	def __init__(self, sendSocket, fm, cont=None):
-		self.soc = sendSocket
+		self.soc = sendSocket # Now this is a SendSocket object
 		self.FeedManager = fm
 		self.Controller = cont
 
@@ -41,7 +41,8 @@ class ActionHandler:
 		# Catch exception if msg cannot be sent
 		try:
 			# Convert list to JSON string then encode to bytes and send
-			self.soc.sendall(json.dumps(msg).encode())
+			self.soc.send_msg(msg)
+			# self.soc.sendall(json.dumps(msg).encode())
 		except:
 			# Log this somehow
 			print("Could not send data")
