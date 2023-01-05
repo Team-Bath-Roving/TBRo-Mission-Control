@@ -17,8 +17,8 @@ BUTTON_T = [pygame.K_t]
 
 # Button and axis mapping
 
-from enum import Enum
-class Axes(Enum):
+from enum import IntEnum
+class Axes(IntEnum):
 	L_TRIG=4
 	R_TRIG=5
 	L_HOR=0
@@ -26,13 +26,13 @@ class Axes(Enum):
 	R_HOR=2
 	R_VER=3
 
-class Dpad(Enum):
+class Dpad(IntEnum):
 	LEFT=0
 	RIGHT=1
 	DOWN=2
 	UP=3
 
-class Buttons(Enum):
+class Buttons(IntEnum):
 	A=0
 	B=1
 	X=2
@@ -122,7 +122,7 @@ class ActionHandler:
 
 		# LEFT TRIGGER - SCOOP
 		if self.Controller.axes[Axes.L_TRIG] > 0.05:
-			v = 2 * int(self.Controller.buttons[Buttons.LT]) - 1
+			v = 2 * int(self.Controller.buttons[Buttons.LB]) - 1
 			msg.append({"SCOOP": v * self.Controller.axes[Axes.L_TRIG]})
 			zero_buffer[4] = False
 		elif not zero_buffer[4]:
@@ -131,7 +131,7 @@ class ActionHandler:
 
 		# RIGHT TRIGGER - BRUSH
 		if self.Controller.axes[Axes.R_TRIG] > 0.05:
-			v = -2 * int(self.Controller.buttons[Buttons.RT]) + 1
+			v = -2 * int(self.Controller.buttons[Buttons.RB]) + 1
 			msg.append({"BRUSH": v * self.Controller.axes[Axes.R_TRIG]})
 			zero_buffer[5] = False
 		elif not zero_buffer[5]:
