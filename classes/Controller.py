@@ -7,7 +7,6 @@ D-Pad order: L, R, D, U
 Axes order: L-Hor, L-Ver, LT, R-Hor, R-Ver, RT
 	- Joystick axes range: [-1, 1], Trigger axes range: [0, 1]
 '''
-
 class Controller:
 	'''
 	Controller class dealing with inputs, displaying current state and sending data to rover
@@ -52,29 +51,28 @@ class Controller:
 		hat = self.joystick.get_hat(0)
 		self.dpad = self.dpad_val_to_list(hat)
 	
-		# Axes
+			
 		for i, j in enumerate([0, 1, 4, 2, 3, 5]):
 			### FOR WINDOWS:
 			# # Trigger axis
-			# if i in [4, 5]:
-			# 	self.axes[i] = (self.joystick.get_axis(i) + 1) / 2
-			# # Joystick vertical (inverted to up = positive)
-			# elif i in [1, 3]:
-			# 	self.axes[i] = -self.joystick.get_axis(i)
-			# # Joystick horizontal
-			# else:
-			# 	self.axes[i] = self.joystick.get_axis(i)
-
-
-			# Trigger axis
-			if i % 3 == 2:
-				self.axes[j] = (self.joystick.get_axis(i) + 1) / 2
+			if i in [4, 5]:
+				self.axes[i] = (self.joystick.get_axis(i) + 1) / 2
 			# Joystick vertical (inverted to up = positive)
-			elif i % 3 == 1:
-				self.axes[j] = -self.joystick.get_axis(i)
+			elif i in [1, 3]:
+				self.axes[i] = -self.joystick.get_axis(i)
 			# Joystick horizontal
 			else:
-				self.axes[j] = self.joystick.get_axis(i)
+				self.axes[i] = self.joystick.get_axis(i)
+
+		# 	# Trigger axis
+		# 	if i % 3 == 2:
+		# 		self.axes[j] = (self.joystick.get_axis(i) + 1) / 2
+		# 	# Joystick vertical (inverted to up = positive)
+		# 	elif i % 3 == 1:
+		# 		self.axes[j] = -self.joystick.get_axis(i)
+		# 	# Joystick horizontal
+		# 	else:
+		# 		self.axes[j] = self.joystick.get_axis(i)
 	
 	def draw_bar(self, axis, screen, coord, dim=(30, 80)):
 		'''Draw a bar for a specific axis'''
