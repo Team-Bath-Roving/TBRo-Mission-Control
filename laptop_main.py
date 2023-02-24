@@ -9,7 +9,7 @@ URLS = [
 IMG_DIR = "img/"
 
 # Network information
-ROVER_IP = "stereocam"
+ROVER_IP = "192.168.68.100"
 PORTS = [5000,5001,5432]
 SIZE = 4096 # not used below
 
@@ -55,7 +55,7 @@ def receive():
 			# print(data)
 			for prefix,msg in data.items():
 				# print(msg)
-				out.write("TCP",f"{prefix.ljust(6)}: {msg}")
+				out.write("ROVER",f"{prefix.ljust(6)}: {msg}")
 
 # Pygame function
 def pygame_function(q):
