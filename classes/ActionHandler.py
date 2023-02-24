@@ -90,7 +90,7 @@ class axisCommand:
 	def transform(self):
 		# set value based on joystick axis
 		value=self.controller.axes[self.axis]
-		if self.controller.button[self.invertButton]: # invert axis if button pressed
+		if self.controller.buttons[self.invertButton]: # invert axis if button pressed
 			if self.invertButton:
 				value=-value
 		if abs(value)>self.deadzone:
@@ -170,7 +170,7 @@ class ActionHandler:
 
 	def axis_update(self):
 		for (command_name,params) in self.axisAction.items():
-			roundedVal=float('%.3f'%(params.axisChange()))
+			roundedVal=float('%.3f'%(params.transform()))
 			if roundedVal != params.previous:
 				params.previous=roundedVal
 				self.msg[command_name]=roundedVal
