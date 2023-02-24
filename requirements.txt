@@ -1,0 +1,7 @@
+colorama==0.4.6
+jsock==0.1.0
+marstime==0.5.6
+numpy==1.24.2
+opencv-python==4.7.0.72
+pygame==2.1.3
+simplejson==3.18.3
