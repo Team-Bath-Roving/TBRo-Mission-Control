@@ -95,6 +95,8 @@ class axisCommand:
 				value=-value
 		if abs(value)>self.deadzone:
 			value=((value-self.deadzone)*self.multiplier)
+		else:
+			value=0
 		return value
 	
 class buttonCommand:
