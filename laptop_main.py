@@ -15,8 +15,8 @@ URLS = [
 	["Phone", f"tcp://{ROVER_IP}:8082"] # "http://192.168.77.163:4747/video"
 ]
 
-WATCHDOG_TIME=5000
-PING_TIME=5000
+WATCHDOG_TIME=5
+# PING_TIME=5000
 
 # ========================================================
 
@@ -38,8 +38,9 @@ from tbroLib.Comms import CommsClient
 from tbroLib.Output import Output
 import sys
 
-out=Output()
-comms = CommsClient(ROVER_IP,PORTS,out,None)
+out=Output("ROVER")
+out.toggleDisplayTypes(["PING","ACK","STATUS"],False)
+comms = CommsClient(ROVER_IP,PORTS,out,None,WATCHDOG_TIME)
 
 ### Exit handler
 
@@ -85,8 +86,8 @@ def pygame_function(q):
 
 	# Create instance of FeedManager and set up CameraFeeds 
 	fm = FeedManager(screen, ["External Webcam", "Built-in Webcam"])
-	fm.add_feed(CameraFeed(URLS[0], (80, 90), (550, 400)))
-	fm.add_feed(CameraFeed(URLS[1], (628, 90), (550, 400)))
+	# fm.add_feed(CameraFeed(URLS[0], (80, 90), (550, 400)))
+	# fm.add_feed(CameraFeed(URLS[1], (628, 90), (550, 400)))
 
 	# Encoded frames received from rover
 	encoded_frames = [False, False]
@@ -111,15 +112,15 @@ def pygame_function(q):
 	prevWatchdog=pygame.time.get_ticks()
 	while not done:
 		# Connection watchdog
-		if pygame.time.get_ticks()-prevWatchdog>WATCHDOG_TIME:
-			prevWatchdog=pygame.time.get_ticks()
-			# comms.send("test")
-			if not comms.connected:
-				comms.connect()
+		# if pygame.time.get_ticks()-prevWatchdog>WATCHDOG_TIME:
+		# 	prevWatchdog=pygame.time.get_ticks()
+		# 	comms.send({"PING":None})
+		# 	if not comms.connected:
+		# 		comms.connect()
 		# Print incoming messages
 		
-		comms.receive()
-		if comms.available():
+		
+		if comms.receive():
 			data=comms.read()
 			# print(data)
 			for prefix,msg in data.items():
@@ -168,9 +169,9 @@ def pygame_function(q):
 				# 	dirs = ["L", "R", "D", "U"]
 				# 	for i, x in enumerate(controllers[cont_index].dpad_val_to_list(event.value)):
 				# 		if x: ah.button_press(f"DPAD_{dirs[i]}")
-		if pygame.time.get_ticks()-prevPing>PING_TIME:
-			prevPing=pygame.time.get_ticks()
-			comms.send({"PING":PING_TIME})
+		# if pygame.time.get_ticks()-prevPing>PING_TIME:
+		# 	prevPing=pygame.time.get_ticks()
+		# 	comms.send({"PING":PING_TIME})
 
 
 
