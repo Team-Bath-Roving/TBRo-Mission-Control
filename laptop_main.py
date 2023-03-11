@@ -34,8 +34,8 @@ from classes.FeedManager import FeedManager
 from classes.CameraFeed import CameraFeed
 from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
-from classes.Comms import CommsClient
-from classes.Output import Output
+from tbroLib.Comms import CommsClient
+from tbroLib.Output import Output
 import sys
 
 out=Output()

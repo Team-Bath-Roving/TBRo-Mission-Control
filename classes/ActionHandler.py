@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from time import sleep
 from .CameraFeed import CameraFeed
-from classes.Comms import Comms
+from tbroLib.Comms import Comms
 
 # zero buffers
 zero_buffer = [True] * 6
