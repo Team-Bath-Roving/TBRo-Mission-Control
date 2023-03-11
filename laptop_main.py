@@ -10,7 +10,7 @@ IMG_DIR = "img/"
 
 # Network information
 ROVER_IP = "stereocam"
-PORTS = [5000,5001,5432]
+PORTS = [5000,5001,5432] # scan multiple ports incase one gets broken
 SIZE = 4096 # not used below
 
 WATCHDOG_TIME=5000
