@@ -9,7 +9,7 @@ URLS = [
 IMG_DIR = "img/"
 
 # Network information
-ROVER_IP = "192.168.68.100"
+ROVER_IP = "stereocam"
 PORTS = [5000,5001,5432]
 SIZE = 4096 # not used below
 
