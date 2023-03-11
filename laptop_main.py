@@ -1,9 +1,5 @@
 '''Config'''
-# URLs of video feeds 
-URLS = [
-	["Webcam", "tcp://192.168.1.99:8080"],
-	["Phone (via IP)", None] # "http://192.168.77.163:4747/video"
-]
+
 
 # Directory of image files
 IMG_DIR = "img/"
@@ -12,6 +8,12 @@ IMG_DIR = "img/"
 ROVER_IP = "stereocam"
 PORTS = [5000,5001,5432] # scan multiple ports incase one gets broken
 SIZE = 4096 # not used below
+
+# URLs of video feeds 
+URLS = [
+	["Webcam", f"tcp://{ROVER_IP}:8081"],
+	["Phone", f"tcp://{ROVER_IP}:8082"] # "http://192.168.77.163:4747/video"
+]
 
 WATCHDOG_TIME=5000
 PING_TIME=5000
@@ -29,7 +31,7 @@ import atexit
 from multiprocessing import Queue, Process
 
 from classes.FeedManager import FeedManager
-# from classes.CameraFeed import CameraFeed
+from classes.CameraFeed import CameraFeed
 from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
 from classes.Comms import CommsClient
@@ -83,8 +85,8 @@ def pygame_function(q):
 
 	# Create instance of FeedManager and set up CameraFeeds 
 	fm = FeedManager(screen, ["External Webcam", "Built-in Webcam"])
-	# fm.add_feed(CameraFeed(*URLS[0], (80, 90), (550, 400)))
-	# fm.add_feed(CameraFeed(*URLS[1], (628, 90), (550, 400)))
+	fm.add_feed(CameraFeed(URLS[0], (80, 90), (550, 400)))
+	fm.add_feed(CameraFeed(URLS[1], (628, 90), (550, 400)))
 
 	# Encoded frames received from rover
 	encoded_frames = [False, False]
