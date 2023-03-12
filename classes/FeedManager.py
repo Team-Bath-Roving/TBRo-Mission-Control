@@ -54,7 +54,8 @@ class FeedManager:
 	def prepare_frame(self, frame, des_dim):
 		'''Transform and scale the frame to the desired size'''
 		# Invert, rotate and correctly colour
-		frame = cv2.cvtColor(np.rot90(np.fliplr(frame)), cv2.COLOR_GRAY2RGB)
+		frame=np.rot90(np.fliplr(frame))
+		# frame = cv2.cvtColor(frame), cv2.COLOR_GRAY2RGB)
 
 		# Calculate required scale factor
 		cur_dim = frame.shape
@@ -75,51 +76,52 @@ class FeedManager:
 	def display_frame(self, screen, frame, name, coords, dim):
 		'''Display an individual frame on the screen'''
 		# Define font
-		font = pygame.font.SysFont("monospace", 16)
+		if not frame is None:
+			font = pygame.font.SysFont("monospace", 16)
 
-		# Draw border rectangle
-		border_rect = pygame.Rect(
-			coords[0],
-			coords[1],
-			dim[0],
-			dim[1]
-		)
-		pygame.draw.rect(screen, (255, 255, 255), border_rect, 2)
-
-		# Get desired frame dimensions (used for centering things)
-		frame_rect = pygame.Rect(
-			coords[0] + 8,
-			coords[1] + 8,
-			dim[0] - 16,
-			dim[1] - 38
-		)
-
-		# If frame is available, display it 
-		if type(frame) == np.ndarray:
-			prepared_frame = self.prepare_frame(frame, dim)
-			surf = pygame.surfarray.make_surface(prepared_frame)
-			surf_rect = surf.get_rect()
-			surf_rect.center = frame_rect.center
-			screen.blit(surf, surf_rect)
-			
-		else:
-			# Otherwise, say that is isn't
-			text = font.render("[Feed unavailable]", True, (255, 255, 255))
-			text_rect = text.get_rect()
-			text_rect.center = frame_rect.center
-			screen.blit(text, text_rect)
-
-		# Show feed name below image, making sure it is centred
-		text = font.render(f"{name}", True, (255, 255, 255))
-		text_rect = text.get_rect(
-			center=(
-				coords[0] + dim[0] / 2,
-				coords[1] + dim[1] - 15
+			# Draw border rectangle
+			border_rect = pygame.Rect(
+				coords[0],
+				coords[1],
+				dim[0],
+				dim[1]
 			)
-		)
-		screen.blit(text, text_rect)
+			pygame.draw.rect(screen, (255, 255, 255), border_rect, 2)
 
-	def display_feeds(self, data1, data2, decode=True):
+			# Get desired frame dimensions (used for centering things)
+			frame_rect = pygame.Rect(
+				coords[0] + 8,
+				coords[1] + 8,
+				dim[0] - 16,
+				dim[1] - 38
+			)
+
+			# If frame is available, display it 
+			if type(frame) == np.ndarray:
+				prepared_frame = self.prepare_frame(frame, dim)
+				surf = pygame.surfarray.make_surface(prepared_frame)
+				surf_rect = surf.get_rect()
+				surf_rect.center = frame_rect.center
+				screen.blit(surf, surf_rect)
+				
+			else:
+				# Otherwise, say that is isn't
+				text = font.render("[Feed unavailable]", True, (255, 255, 255))
+				text_rect = text.get_rect()
+				text_rect.center = frame_rect.center
+				screen.blit(text, text_rect)
+
+			# Show feed name below image, making sure it is centred
+			text = font.render(f"{name}", True, (255, 255, 255))
+			text_rect = text.get_rect(
+				center=(
+					coords[0] + dim[0] / 2,
+					coords[1] + dim[1] - 15
+				)
+			)
+			screen.blit(text, text_rect)
+	
+	def display_feeds(self, data1=None, data2=None, decode=True):
 		'''Decode, display and format all feeds'''
 
 		if decode:
@@ -130,6 +132,11 @@ class FeedManager:
 			else:
 				self.frame1 = self.decode_frame(data2)
 				self.frame2 = self.decode_frame(data1)
+		else:
+			if not data1 is None:
+				self.frame1=data1
+			if not data2 is None:
+				self.frame2=data2
 			
 		# Display each frame depending on the mode
 		if self.mode == 0:
