@@ -34,13 +34,22 @@ from classes.FeedManager import FeedManager
 from classes.CameraFeed import CameraFeed
 from classes.Controller import Controller
 from classes.ActionHandler import ActionHandler
+from classes.displayStream import *
 from tbroLib.Comms import CommsClient
 from tbroLib.Output import Output
 import sys
 
 out=Output("ROVER")
-out.toggleDisplayTypes(["PING","ACK","STATUS"],False)
+out.toggleDisplayTypes([
+	"PING",
+	"ACK",
+	"STATUS",
+],False)
 comms = CommsClient(ROVER_IP,PORTS,out,None,WATCHDOG_TIME)
+# streams=[
+# 	stream(ROVER_IP,"Stereo",8081,out,640,480,stereo=False),
+# 	stream(ROVER_IP,"USB",8082,out,640,480)
+# ]
 
 ### Exit handler
 
@@ -63,8 +72,10 @@ def receive():
 # Pygame function
 def pygame_function(q):
 
+	startCams()
+
 	# Set up socket for sending
-	comms.connect()
+	# comms.connect()
 	
 	# Initialise pygame
 	pygame.init()
@@ -88,6 +99,7 @@ def pygame_function(q):
 	fm = FeedManager(screen, ["External Webcam", "Built-in Webcam"])
 	# fm.add_feed(CameraFeed(URLS[0], (80, 90), (550, 400)))
 	# fm.add_feed(CameraFeed(URLS[1], (628, 90), (550, 400)))
+	
 
 	# Encoded frames received from rover
 	encoded_frames = [False, False]
@@ -118,8 +130,6 @@ def pygame_function(q):
 		# 	if not comms.connected:
 		# 		comms.connect()
 		# Print incoming messages
-		
-		
 		if comms.receive():
 			data=comms.read()
 			# print(data)
@@ -211,6 +221,11 @@ def pygame_function(q):
 			pygame.draw.line(screen, WHITE, (div1, 10), (div1, 70))
 			pygame.draw.line(screen, WHITE, (div2, 10), (div2, 70))
 
+			fm.frame1=cameras[0].frame
+			fm.frame2=cameras[1].frame
+			# threading.Thread(target=fm.display_feeds,daemon=True)
+			fm.display_feeds(cameras[0].frame,cameras[1].frame,decode=False)
+
 			# Write header text
 			for i, (top, bottom) in enumerate([
 				["Earth Date", f"{d.now().strftime('%Y-%m-%d')}"],
@@ -282,17 +297,17 @@ def pygame_function(q):
 		# Send JSON commands to rover
 		ah.send_commands()
 		# Displaying rover feedback
-		if q.full():
-			encoded_frames = [q.get(), q.get()]
+		# if q.full():
+		# 	encoded_frames = [q.get(), q.get()]
 			
 		# Displaying camera feeds
-		fm.display_feeds(*encoded_frames)
+		# fm.display_feeds(*encoded_frames)
 
 		# Update the screen
 		pygame.display.flip()
 
 		# Limit to 60 frames per second
-		clock.tick(15)
+		# clock.tick(15)
 
 	# fm.release_feeds()
 	pygame.quit()
