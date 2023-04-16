@@ -29,7 +29,7 @@ def main_function(control_queue):
 	try:
 
 		# Set up cameras (at the moment code only works with exactly 2, this will be changed)
-		captures = [cv2.VideoCapture(0), cv2.VideoCapture(1)]
+		captures = [cv2.VideoCapture(0), cv2.VideoCapture(0)]
 		PAYLOAD_STRING = "<HII"
 
 		with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sendsock:
