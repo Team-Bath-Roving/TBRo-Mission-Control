@@ -4,13 +4,6 @@ import pygame
 import datetime
 from enum import IntEnum
 
-# Import classes
-from .FeedManager import FeedManager
-from .ActionHandler import ActionHandler
-from .MissionControl import MissionControl
-from .Gamepad import GamepadManager, Gamepad
-from .Sockets import SocketTimeout, ControlSend, FeedbackReceive, CameraReceive
-
 # Button and axis indicies
 class Axes(IntEnum):
 	L_HOR=0
@@ -52,7 +45,7 @@ class ActionHandler:
 	"""
 	Handles button presses, axis movements, etc and sends information to rover
 	"""
-	def __init__(self, send_socket:ControlSend, mc:MissionControl, fm:FeedManager, gm:GamepadManager):
+	def __init__(self, send_socket, mc, fm, gm):
 		"""
 		Parameters
 		----------

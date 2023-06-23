@@ -3,18 +3,11 @@ import cv2
 import pygame
 import numpy as np
 
-# Import classes
-from .FeedManager import FeedManager
-from .ActionHandler import ActionHandler
-from .MissionControl import MissionControl
-from .Gamepad import GamepadManager, Gamepad
-from .Sockets import SocketTimeout, ControlSend, FeedbackReceive, CameraReceive
-
 class FeedManager():
 	"""
 	Class for managing incoming all incoming images from the rover
 	"""
-	def __init__(self, mc:MissionControl, names:"list[str]", img_queues:dict):
+	def __init__(self, mc, names:"list[str]", img_queues:dict):
 		"""
 		Parameters
 		----------
@@ -29,7 +22,7 @@ class FeedManager():
 		self.names = names
 		self.queues = img_queues
 
-		self.view = 1 # Viewing mode
+		self.view = 0 # Viewing mode
 		self.enlarged = 0 # In view 1, which camera is enlarged
 
 	def get_images(self):

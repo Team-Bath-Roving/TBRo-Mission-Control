@@ -9,13 +9,6 @@ import imagezmq
 import threading
 import numpy as np
 
-# Import classes
-from .FeedManager import FeedManager
-from .ActionHandler import ActionHandler
-from .MissionControl import MissionControl
-from .Gamepad import GamepadManager, Gamepad
-from .Sockets import SocketTimeout, ControlSend, FeedbackReceive, CameraReceive
-
 class SocketTimeout(Exception):
 	"""
 	Custom Exception to catch when a socket is disconnected

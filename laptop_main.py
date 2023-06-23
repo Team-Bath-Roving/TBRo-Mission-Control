@@ -1,10 +1,10 @@
 # CONFIG
 # Network information
-# ROVER_IP = "rover.local"
-ROVER_IP = "localhost"
+ROVER_IP = "rover.local"
+# ROVER_IP = "localhost"
 
 # Camera information
-CAM_NAMES = ["Cam 1"] # , "Cam 2", "Cam 3"]
+CAM_NAMES = ["Webcam", "Pi Cam"]
 
 # Window size
 WIDTH, HEIGHT = 1200, 765

@@ -1,13 +1,6 @@
 # Import libraries
 import pygame
 
-# Import classes
-from .FeedManager import FeedManager
-from .ActionHandler import ActionHandler
-from .MissionControl import MissionControl
-from .Gamepad import GamepadManager, Gamepad
-from .Sockets import SocketTimeout, ControlSend, FeedbackReceive, CameraReceive
-
 WHITE = (255, 255, 255) # We use white a lot so we define it seperately
 
 class MissionControl():
@@ -53,9 +46,9 @@ class MissionControl():
 		"""If the connection status has changed, updates text in corner of window to reflect that"""
 		if conn != self.conn_status:
 			if conn:
-				self.write_text("Connection lost", (self.WIDTH - 200, self.HEIGHT - 20))
-			else:
 				self.screen.fill((0, 0, 0), (self.WIDTH - 200, self.HEIGHT - 20, self.WIDTH, self.HEIGHT))
+			else:
+				self.write_text("Connection lost", (self.WIDTH - 200, self.HEIGHT - 20))
 
 			self.conn_status = conn
 
