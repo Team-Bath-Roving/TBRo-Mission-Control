@@ -4,7 +4,7 @@ ROVER_IP = "rover.local"
 # ROVER_IP = "localhost"
 
 # Camera information
-CAM_NAMES = ["Webcam", "Pi Cam"]
+CAM_NAMES = ["Pi Cam"]
 
 # Window size
 WIDTH, HEIGHT = 1200, 765
@@ -37,8 +37,9 @@ def main_function(fb_queue, img_queues):
 		# Check connection
 		conn = sock.check_connection()
 
-		# Handle pygame events (eg button presses, quitting)
+		# Handle pygame events (eg button presses, quitting) and send axis movements
 		done = ah.handle_events(pygame.event.get(), conn)
+		ah.send_axes(conn)
 
 		# Attempt to fetch images from video streams
 		fm.get_images()

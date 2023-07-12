@@ -9,6 +9,12 @@ class GamepadManager:
 	def __init__(self):
 		self.gamepads = {}
 
+	def count(self):
+		"""
+		Returns how many gamepads are currently connected
+		"""
+		return len(self.gamepads)
+
 	def add_gamepad(self, index:int):
 		"""
 		Parameters
@@ -39,8 +45,24 @@ class GamepadManager:
 		button : int
 			The index of the button
 		"""
-		return self.gamepads[id].joystick.get_button(button)
+		if not self.gamepads:
+			return False
+		else:
+			return self.gamepads[id].joystick.get_button(button)
 
+	def get_axis_value(self, axis:int):
+		"""
+		Gets the axis value from the primary gamepad
+
+		Parameters
+		----------
+		axis : int
+			The index of the axis
+		"""
+		if not self.gamepads:
+			return 0
+		else:
+			return self.gamepads[0].joystick.get_axis(axis)
 
 class Gamepad:
 	"""

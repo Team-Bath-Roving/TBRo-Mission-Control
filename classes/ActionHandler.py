@@ -4,7 +4,7 @@ import pygame
 import datetime
 from enum import IntEnum
 
-# Button and axis indicies
+# Button and axis indicies (may need to change order depending on controller/ OS)
 class Axes(IntEnum):
 	L_HOR=0
 	L_VER=1
@@ -33,7 +33,7 @@ class Buttons(IntEnum):
 	START=10
 
 # Deadzone for axis motion
-DEADZONE = 0.1
+DEADZONE = 0.02
 
 # Keybinds
 TEST_KEYBIND_1 = [pygame.K_f, Buttons.A]
@@ -63,6 +63,8 @@ class ActionHandler:
 		self.FeedManager = fm
 		self.GamepadManager = gm
 
+		self.axis_buffer = [0] * 6
+
 	def send_msg(self, msg:dict):
 		"""
 		Send message (with control instructions) to rover
@@ -78,6 +80,87 @@ class ActionHandler:
 		# Run socket method which converts to JSON and sends
 		self.sock.send(msg)
 
+	def send_axes(self, conn=True):
+		"""
+		Sends the value of an axis if it isn't zero
+
+		Parameters
+		----------
+		conn : bool
+			Whether the send socket is connected or not 
+		"""
+		msg = {}
+
+		# Loop over each gamepad
+		for axis in range(6):
+			# Get value of axis
+			value = self.GamepadManager.get_axis_value(axis)
+
+			# Joystick
+			if axis in [Axes.L_HOR, Axes.L_VER, Axes.R_HOR, Axes.R_VER]:
+				# Check movement is further than the deadzone
+				if abs(value) > DEADZONE:
+					# Measure movement past the deadzone (need to account for positive and negative value)
+					value = min([value - DEADZONE, value + DEADZONE], key=abs) / (1 - DEADZONE)
+					
+					# Forwards/ backwards
+					if axis == Axes.L_VER:
+						self.axis_buffer[Axes.L_VER] = -value
+						msg["FORWARD"] = -value # Note: up on joystick is negative so we invert this
+					
+					# Turning
+					elif axis == Axes.R_HOR:
+						self.axis_buffer[Axes.R_HOR] = value
+						msg["TURN"] = value
+
+				elif self.axis_buffer[axis] != 0:
+					# If value is zero, make sure to send that to rover
+					if axis == Axes.L_VER: 
+						msg["FORWARD"] = 0
+						self.axis_buffer[axis] = 0
+					elif axis == Axes.L_VER: 
+						msg["TURN"] = 0
+						self.axis_buffer[axis] = 0
+
+			# Trigger
+			elif axis in [Axes.L_TRIG, Axes.R_TRIG]:
+				# Convert range from (-1, 1) to (0, 1)
+				value = (value + 1) / 2
+
+				# Check movement is further than the deadzone
+				if value > DEADZONE:
+					# Measure movement past the deadzone 
+					value = (value - DEADZONE) / (1 - DEADZONE)
+
+					# Left Trigger 
+					if axis == Axes.L_TRIG:
+						# Invert if left bumper is held
+						if self.GamepadManager.get_button_state(0, Buttons.LB):
+							value *= -1
+
+						self.axis_buffer[Axes.L_TRIG] = value
+						msg["L_TRIG"] = value # [temp name]
+
+					# Right Trigger 
+					elif axis == Axes.R_TRIG:
+						# Invert if right bumper is held
+						if self.GamepadManager.get_button_state(0, Buttons.RB):
+							value *= -1
+
+						self.axis_buffer[Axes.R_TRIG] = value
+						msg["R_TRIG"] = value # [temp name]
+
+				elif self.axis_buffer[axis] != 0:
+					# If value is zero, make sure to send that to rover
+					if axis == Axes.L_TRIG: 
+						msg["L_TRIG"] = 0
+						self.axis_buffer[axis] = 0
+					elif axis == Axes.R_TRIG: 
+						msg["R_TRIG"] = 0
+						self.axis_buffer[axis] = 0
+
+		if conn and msg: self.send_msg(msg)
+
 	def button_press(self, button, down=True):
 		"""All the actions to be carried out after a button is pressed"""
 		if button in TEST_KEYBIND_1: # Do something purely client side (i.e. don't send to rover) 
@@ -91,56 +174,6 @@ class ActionHandler:
 		elif button in TEST_KEYBIND_3: # Send button up and down to rover
 			print(f"Test 3 {'down' if down else 'up'}")
 			return ["TEST BUTTON 3", down]
-
-	def axis_motion(self, id:int, axis:int, value:float):
-		"""
-		Commands to send to rover when an axis is moved
-		
-		Parameters
-		----------
-		id : int
-			The ID of the controller the motion is from
-		axis : int
-			The index for the axis which was moved
-		value : float
-			Value of the axis in its current position
-		"""
-		# Joystick
-		if axis in [Axes.L_HOR, Axes.L_VER, Axes.R_HOR, Axes.R_VER]:
-			# Check movement is further than the deadzone
-			if abs(value) <= DEADZONE:
-				return None
-			
-			# Measure movement past the deadzone (need to account for positive and negative value)
-			value = min([value - DEADZONE, value + DEADZONE], key=abs) / (1 - DEADZONE)
-			
-			# Forwards/ backwards
-			if axis == Axes.L_VER:
-				return ["FORWARD", -value] # Note: up on joystick is negative so we invert this
-			
-			# Turning
-			elif axis == Axes.R_HOR:
-				return ["TURN", value]
-
-		# Trigger
-		elif axis in [Axes.L_TRIG, Axes.R_TRIG]:
-			# Convert range from (-1, 1) to (0, 1)
-			value = (value + 1) / 2
-
-			# Check movement is further than the deadzone
-			if value <= DEADZONE:
-				return None
-			
-			# Measure movement past the deadzone 
-			value = (value - DEADZONE) / (1 - DEADZONE)
-
-			# [Test] Left Trigger 
-			if axis == Axes.L_TRIG:
-				# Invert if left bumper is held
-				if self.GamepadManager.get_button_state(id, Buttons.LB):
-					value *= -1
-
-				return ["L_TRIG", value]
 
 	def handle_events(self, events, conn=True) -> bool:
 		"""
@@ -173,8 +206,8 @@ class ActionHandler:
 				command = self.button_press(event.button, event.type == pygame.JOYBUTTONDOWN)
 			
 			# Controller axis movement
-			elif event.type == pygame.JOYAXISMOTION:
-				command = self.axis_motion(event.joy, event.axis, event.value)
+			# elif event.type == pygame.JOYAXISMOTION:
+			# 	command = self.axis_motion(event.joy, event.axis, event.value)
 
 			# Controller connected
 			elif event.type == pygame.JOYDEVICEADDED:
