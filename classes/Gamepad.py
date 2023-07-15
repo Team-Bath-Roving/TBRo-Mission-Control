@@ -60,7 +60,7 @@ class GamepadManager:
 			The index of the axis
 		"""
 		if not self.gamepads:
-			return 0
+			return None
 		else:
 			return self.gamepads[0].joystick.get_axis(axis)
 

@@ -95,6 +95,7 @@ class ActionHandler:
 		for axis in range(6):
 			# Get value of axis
 			value = self.GamepadManager.get_axis_value(axis)
+			if value == None: return None
 
 			# Joystick
 			if axis in [Axes.L_HOR, Axes.L_VER, Axes.R_HOR, Axes.R_VER]:
