@@ -1,6 +1,6 @@
-[submodule "tbroLib"]
-	path = tbroLib
-	url = https://github.com/Team-Bath-Roving/tbroLib.git
-[submodule "Camera-Streaming"]
-	path = Camera-Streaming
-	url = https://github.com/Team-Bath-Roving/Camera-Streaming.git
+[submodule "Comms"]
+	path = Comms
+	url = https://github.com/Team-Bath-Roving/Comms.git
+[submodule "Streaming"]
+	path = Streaming
+	url = https://github.com/Team-Bath-Roving/Streaming.git
