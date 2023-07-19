@@ -1,13 +1,13 @@
 # CONFIG
 # Network information
-ROVER_IP = "rover.local"
-# ROVER_IP = "localhost"
+# ROVER_IP = "rover.local"
+ROVER_IP = "localhost"
 
 # Camera information
 CAM_NAMES = ["Pi Cam"]
 
 # Window size
-WIDTH, HEIGHT = 1200, 765
+WIDTH, HEIGHT = 1200, 780
 
 # ===================================
 
@@ -26,7 +26,7 @@ from classes.Sockets import SocketTimeout, ControlSend, FeedbackReceive, CameraR
 
 def main_function(fb_queue, img_queues):
 	sock = ControlSend(ROVER_IP, 5001)
-	mc = MissionControl(WIDTH, HEIGHT)
+	mc = MissionControl(WIDTH, HEIGHT, CAM_NAMES)
 	fm = FeedManager(mc, CAM_NAMES, img_queues)
 	gm = GamepadManager()
 	ah = ActionHandler(sock, mc, fm, gm)
@@ -36,6 +36,12 @@ def main_function(fb_queue, img_queues):
 	while not done:
 		# Check connection
 		conn = sock.check_connection()
+		mc.system_info["connected"] = conn
+
+		# Handle any feedback
+		fb = []
+		while not fb_queue.empty():
+			ah.handle_feedback(fb_queue.get()) # <-- THIS FUNCTION NEEDS TO BE WRITTEN
 
 		# Handle pygame events (eg button presses, quitting) and send axis movements
 		done = ah.handle_events(pygame.event.get(), conn)
@@ -44,18 +50,11 @@ def main_function(fb_queue, img_queues):
 		# Attempt to fetch images from video streams
 		fm.get_images()
 
-		# *** Draw things on the pygame screen here
-		# ***
+		# Draw things on the pygame screen here
+		mc.draw_borders()
 
-		# Write if connection lost [Temp]
-		mc.write_status(conn)
-		
+		# mc.write_coords() # [Temp]
 		mc.update_display()
-
-		# Handle any feedback
-		while not fb_queue.empty():
-			# [Temp] For now just print to console
-			print(fb_queue.get())
 
 	# Quitting
 	pygame.quit()

@@ -29,7 +29,7 @@ class FeedManager():
 		"""Retrieves images from the queue"""
 		for name, queue in self.queues.items():
 			if queue.full():
-				self.update_image(name, queue.get())
+				self.mc.draw_images(name, queue.get())
 
 	def prepare_frame(self, frame:np.ndarray, des_dim:"tuple[int]"):
 		"""Transform and scale the frame to the desired dimensions"""

@@ -2,6 +2,7 @@
 import json
 import pygame
 import datetime
+import numpy as np
 from enum import IntEnum
 
 # Button and axis indicies (may need to change order depending on controller/ OS)
@@ -39,6 +40,13 @@ DEADZONE = 0.02
 TEST_KEYBIND_1 = [pygame.K_f, Buttons.A]
 TEST_KEYBIND_2 = [pygame.K_g, Buttons.B]
 TEST_KEYBIND_3 = [pygame.K_h, Buttons.X]
+MAP_ZOOM_IN = [pygame.K_i]
+MAP_ZOOM_OUT = [pygame.K_o]
+
+# Labels and rover commands for on screen buttons
+onscreen_commands = [
+	["TEST", ["Dict name", "dict value"]]
+]
 
 # ActionHandler Class
 class ActionHandler:
@@ -64,6 +72,10 @@ class ActionHandler:
 		self.GamepadManager = gm
 
 		self.axis_buffer = [0] * 6
+
+		# On screen button labels
+		for i in range(len(onscreen_commands)):
+			self.MissionControl.actions_info["labels"][i] = onscreen_commands[i][0]
 
 	def send_msg(self, msg:dict):
 		"""
@@ -175,6 +187,13 @@ class ActionHandler:
 		elif button in TEST_KEYBIND_3: # Send button up and down to rover
 			print(f"Test 3 {'down' if down else 'up'}")
 			return ["TEST BUTTON 3", down]
+		
+		elif down and button in MAP_ZOOM_IN:
+			self.MissionControl.map_info["zoom"] += 0.2
+			print(f"Zoom: {self.MissionControl.map_info['zoom']}")
+		elif down and button in MAP_ZOOM_OUT:
+			self.MissionControl.map_info["zoom"] -= 0.2
+			print(f"Zoom: {self.MissionControl.map_info['zoom']}")
 
 	def handle_events(self, events, conn=True) -> bool:
 		"""
@@ -220,6 +239,16 @@ class ActionHandler:
 				self.GamepadManager.remove_gamepad(event.instance_id)
 				print("Gamepad disconnected")
 
+			# On screen button presses
+			elif event.type == pygame.MOUSEBUTTONDOWN:
+				x, y = pygame.mouse.get_pos()
+
+				for i in range(16):
+					bb = self.MissionControl.actions_info["bboxes"][i] # Bounding box
+					if bb[0] < x and bb[1] < y and x < bb[2] and y < bb[3]:
+						command = onscreen_commands[i][1]
+						break
+
 
 			# If there was a command, append it to msg
 			if command: msg[command[0]] = command[1]
@@ -227,3 +256,16 @@ class ActionHandler:
 		# If connected and msg list isn't empty, send commands
 		if conn and msg: self.send_msg(msg)
 		return done
+	
+	def handle_feedback(self, fb:dict):
+		W, vu = self.MissionControl.get_width_vu()
+
+		# Loop over feedback (it is a dict, unless type that is sent has been changed rover_main): 
+		# - replace values in *_info parameters in MissionControl
+		# - then run the functions below
+
+		self.overhead_map(np.array([W - 2 * vu, 2 * vu]))
+		self.scoop_status(np.array([W - 4 * vu, 4 * vu]))
+		self.telemetry(np.array([W - 4 * vu, 2 * vu]))
+		self.system(np.array([W - 4 * vu, 0]))
+		self.actions(np.array([W - 2 * vu, 0]))
